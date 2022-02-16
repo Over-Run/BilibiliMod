@@ -6,13 +6,13 @@ import java.util.Properties;
 
 public class CreateConfig {
 	public final MyProperties properties = new MyProperties();
+	public final File
+			path = new File("config" + File.separatorChar + "bilibilimod"),
+			file = new File(path, "config.properties");
 	public void createConfig() {
-		File
-				path = new File("config" + File.separatorChar + "bilibilimod"),
-				file = new File(path, "config.properties");
 		if (!path.exists()) path.mkdirs();
 			try {
-				load(file.getAbsolutePath());
+				load(properties ,file.getAbsolutePath());
 			} catch (FileNotFoundException f) {
 				properties.put("BVid", "BV1zQ4y1N79L");
 				properties.put("aid", "710598316");
@@ -29,5 +29,13 @@ public class CreateConfig {
 	public MyProperties getProperties() {
 		return properties;
 	}
-	public void load(String a) throws IOException { properties.load(new BufferedInputStream(new FileInputStream(a))); }
+	public void load(MyProperties myProperties,String a) throws IOException { myProperties.load(new BufferedInputStream(new FileInputStream(a))); }
+
+	public File getPath() {
+		return path;
+	}
+
+	public File getFile() {
+		return file;
+	}
 }

@@ -3,6 +3,7 @@ package io.github.overrun.bilibilimod;
 import com.alibaba.fastjson.JSON;
 
 import io.github.overrun.bilibilimod.configs.CreateConfig;
+import io.github.overrun.bilibilimod.configs.MyProperties;
 import net.fabricmc.api.ModInitializer;
 import okhttp3.Call;
 import okhttp3.OkHttpClient;
@@ -11,7 +12,7 @@ import okhttp3.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
+import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -24,7 +25,9 @@ public class BiliBiliMod extends CreateConfig implements ModInitializer {
 	public static final String version = "1.0.0";
 	public static final String author = "overrun";
 	public static final String HTTPS_WWW_BILIBILI_COM = "https://www.bilibili.com/";
-	public final Map<String, Integer> element = new HashMap<>();//将数据注入哈希map内
+	MyProperties myProperties = new MyProperties();
+
+	public final Map<String, String> element = new HashMap<>();//将数据注入哈希map内
 	@Override
 	public void onInitialize() {
 		message.info("BiliBili Mod Initializing...");
@@ -44,13 +47,33 @@ public class BiliBiliMod extends CreateConfig implements ModInitializer {
 			var contentMap = JSON.parseObject(content, Map.class);
 			@SuppressWarnings("rawtypes") var dataMap = (Map) contentMap.get("data");
 
-			element.put("播放", parseInt(dataMap.get("view").toString()));
-			element.put("收藏", parseInt(dataMap.get("favorite").toString()));
-			element.put("硬币", parseInt(dataMap.get("coin").toString()));
-			element.put("点赞", parseInt(dataMap.get("like").toString()));
-			element.put("分享", parseInt(dataMap.get("share").toString()));
+			element.put("播放", dataMap.get("view").toString());
+			element.put("收藏", dataMap.get("favorite").toString());
+			element.put("硬币", dataMap.get("coin").toString());
+			element.put("点赞", dataMap.get("like").toString());
+			element.put("分享", dataMap.get("share").toString());
+			File path = new File(getPath(), "BVids");
+			if (!path.exists()) {
+				path.mkdirs();
+			}
+			File file = new File(path, getProperties().getProperty("BVid") + ".save");
+			try {
+				load(myProperties ,file.getAbsolutePath());
+			} catch (FileNotFoundException f) {
+				myProperties.put("播放", element.get("播放"));
+				myProperties.put("点赞", element.get("点赞"));
+				myProperties.put("收藏", element.get("收藏"));
+				myProperties.put("分享", element.get("分享"));
+				myProperties.put("硬币", element.get("硬币"));
+				try {
+					myProperties.store(new BufferedOutputStream(new FileOutputStream(file)), "BiliBili Mod Config");
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 			message.info("播放量 " + element.get("播放") + " 点赞 " + element.get("点赞") + " 收藏 " + element.get("收藏") + " 分享 " + element.get("分享") + " 硬币 " + element.get("硬币"));
-
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

@@ -8,24 +8,29 @@ import okhttp3.Call;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
+
+import static java.lang.Integer.parseInt;
 
 public class BiliBiliMod extends CreateConfig implements ModInitializer {
 	public static final String modid = "bilibilimod";
 	public static final Logger message = LoggerFactory.getLogger(modid);
 	public static final String version = "1.0.0";
+	public static final String author = "overrun";
+	public static final String HTTPS_WWW_BILIBILI_COM = "https://www.bilibili.com/";
+	public final Map<String, Integer> element = new HashMap<>();//将数据注入哈希map内
 	@Override
 	public void onInitialize() {
 		message.info("BiliBili Mod Initializing...");
+		message.info("BiliBili Mod Version: " + version);
+		message.info("BiliBili Mod Author: " + author);
+		message.info("BiliBili Website Url: " + HTTPS_WWW_BILIBILI_COM);
 		createConfig();
 //		try {
 //			getElement(getProperties().getProperty("url"));
@@ -36,15 +41,15 @@ public class BiliBiliMod extends CreateConfig implements ModInitializer {
 		String referer = "https://www.bilibili.com/video/" + getProperties().getProperty("BVid");
 		try {
 			String content = getContent(url, referer);
-			Map contentMap = JSON.parseObject(content, Map.class);
-			Map dataMap = (Map) contentMap.get("data");
+			var contentMap = JSON.parseObject(content, Map.class);
+			@SuppressWarnings("rawtypes") var dataMap = (Map) contentMap.get("data");
 
-			String like = dataMap.get("like").toString();
-			String coin = dataMap.get("coin").toString();
-			String view = dataMap.get("view").toString();
-			String share = dataMap.get("share").toString();
-			String favorite = dataMap.get("favorite").toString();
-			message.info("播放量 " + view + " 点赞 " + like + " 收藏 " + favorite + " 分享 " + share + " 硬币 " + coin);
+			element.put("播放", parseInt(dataMap.get("view").toString()));
+			element.put("收藏", parseInt(dataMap.get("favorite").toString()));
+			element.put("硬币", parseInt(dataMap.get("coin").toString()));
+			element.put("点赞", parseInt(dataMap.get("like").toString()));
+			element.put("分享", parseInt(dataMap.get("share").toString()));
+			message.info("播放量 " + element.get("播放") + " 点赞 " + element.get("点赞") + " 收藏 " + element.get("收藏") + " 分享 " + element.get("分享") + " 硬币 " + element.get("硬币"));
 
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -65,7 +70,7 @@ public class BiliBiliMod extends CreateConfig implements ModInitializer {
 			Response response = call.execute();
 			int code = response.code();
 			System.out.println("code: " + code);
-			result = response.body().string();
+			result = Objects.requireNonNull(response.body()).string();
 		} catch (IOException e) {
 			System.out.println("request" + url + " failed");
 			e.printStackTrace();

@@ -4,6 +4,8 @@ import com.alibaba.fastjson.JSON;
 
 import io.github.overrun.bilibilimod.configs.CreateConfig;
 import io.github.overrun.bilibilimod.configs.MyProperties;
+import io.github.overrun.bilibilimod.gen.TacticalNuclearGraphicsCard;
+import io.github.overrun.bilibilimod.gen.base.GetIp;
 import net.fabricmc.api.ModInitializer;
 import okhttp3.Call;
 import okhttp3.OkHttpClient;
@@ -13,11 +15,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-
-import static java.lang.Integer.parseInt;
 
 public class BiliBiliMod extends CreateConfig implements ModInitializer {
 	public static final String modid = "bilibilimod";
@@ -28,18 +29,19 @@ public class BiliBiliMod extends CreateConfig implements ModInitializer {
 	MyProperties myProperties = new MyProperties();
 
 	public final Map<String, String> element = new HashMap<>();//将数据注入哈希map内
+	public final Map<String, String> getMyIp = new HashMap<>();//将数据注入哈希map内
 	@Override
 	public void onInitialize() {
 		message.info("BiliBili Mod Initializing...");
 		message.info("BiliBili Mod Version: " + version);
 		message.info("BiliBili Mod Author: " + author);
 		message.info("BiliBili Website Url: " + HTTPS_WWW_BILIBILI_COM);
+		new TacticalNuclearGraphicsCard().TNGC();
 		createConfig();
-//		try {
-//			getElement(getProperties().getProperty("url"));
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
+		String[] strings = new String[]{Arrays.toString(GetIp.getIp()).replace("归属地:, ", "").replace("[", "").replace("]", "").replace(",", "")};
+		String string = Arrays.toString(strings).replace("[", "").replace("]", "");
+		message.info(string);
+
 		String url = "https://api.bilibili.com/x/web-interface/archive/stat?aid=" + getProperties().getProperty("aid");
 		String referer = "https://www.bilibili.com/video/" + getProperties().getProperty("BVid");
 		try {
@@ -100,30 +102,5 @@ public class BiliBiliMod extends CreateConfig implements ModInitializer {
 		}
 		return result;
 	}
-
-//	public void getElement(String url) throws IOException {
-//		message.info("url is..." + url);
-//		Document doc = Jsoup.connect(url).get();
-//		Elements links = doc.select("a[href]");
-//		Elements media = doc.select("[src]");
-//		Elements imports = doc.select("link[href]");
-//		Elements coin = doc.select("coin");
-//		message.info("Media: ", media.size());
-//		for (Element src : media) {
-//			if (src.tagName().equals("img")) {
-//				message.info("src: " + src.tagName() + " " + src.attr("abs:src") + " " + src.attr("width") + " " + src.attr("height") + " " + src.attr("alt"));
-//			} else {
-//				message.info("src: " + src.tagName() + " " + src.attr("abs:src"));
-//			}
-//		}
-//		message.info("Imports: ", imports.size());
-//		for (Element link : imports) {
-//			message.info("link: " + link.tagName() + " " + link.attr("abs:href") + " " + link.attr("rel"));
-//		}
-//		message.info("Links: ", links.size());
-//		for (Element link : links) {
-//			message.info("link: " + link.tagName() + " " + link.attr("abs:href") + " " + link.text());
-//		}
-//	}
 
 }
